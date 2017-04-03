@@ -142,9 +142,9 @@ namespace AnimeWallpaperRenamer
                 id++;
                 moveToPath = $@"{ToPath}\{category} {id}{Path.GetExtension(ImagePath)}";
             } while (File.Exists(moveToPath));
-            
-            ImagePath = _imagesToMove != null && _imagesToMove.Count != 0 ? _imagesToMove.Pop() : null;
+
             File.Move(ImagePath, moveToPath);
+            ImagePath = _imagesToMove != null && _imagesToMove.Count != 0 ? _imagesToMove.Pop() : null;
         }
 
         private void AddButton_OnClick(object sender, RoutedEventArgs e)
