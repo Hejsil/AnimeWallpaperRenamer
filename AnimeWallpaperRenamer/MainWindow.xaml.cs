@@ -1,46 +1,41 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Forms;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using AnimeWallpaperRenamer.Annotations;
-using Microsoft.Win32;
 using static System.Windows.Forms.DialogResult;
 using ListViewItem = System.Windows.Controls.ListViewItem;
-using Path = System.IO.Path;
 
 namespace AnimeWallpaperRenamer
 {
     /// <summary>
-    /// Interaction logic for MainWindow.xaml
+    ///     Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window, INotifyPropertyChanged
+    public partial class MainWindow : INotifyPropertyChanged
     {
-        private readonly FolderBrowserDialog _toFolderBrowserDialog = new FolderBrowserDialog();
+        private readonly ObservableCollection<string> _categories = new ObservableCollection<string>();
         private readonly FolderBrowserDialog _fromFolderBrowserDialog = new FolderBrowserDialog();
+        private readonly FolderBrowserDialog _toFolderBrowserDialog = new FolderBrowserDialog();
+        private ICollectionView _categoriesView;
+        private Stack<string> _imagesToMove;
+        private string _fromPath;
+        private string _imagePath;
 
         private string _toPath;
-        private string _fromPath;
-        private string _newCategory;
-        private ObservableCollection<string> _categories;
-        private string _imagePath;
-        private Stack<string> _imagesToMove;
-        private ICollectionView _categoriesView;
+
+        public MainWindow()
+        {
+            InitializeComponent();
+            CategoriesView = new ListCollectionView(_categories);
+        }
 
         public string ToPath
         {
@@ -62,32 +57,12 @@ namespace AnimeWallpaperRenamer
             }
         }
 
-        public string NewCategory
-        {
-            get { return _newCategory; }
-            set
-            {
-                _newCategory = value;
-                OnPropertyChanged();
-            }
-        }
-
         public string ImagePath
         {
             get { return _imagePath; }
             set
             {
                 _imagePath = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public ObservableCollection<string> Categories
-        {
-            get { return _categories; }
-            set
-            {
-                _categories = value;
                 OnPropertyChanged();
             }
         }
@@ -100,13 +75,6 @@ namespace AnimeWallpaperRenamer
                 _categoriesView = value;
                 OnPropertyChanged();
             }
-        }
-
-        public MainWindow()
-        {
-            InitializeComponent();
-            Categories = new ObservableCollection<string>();
-            CategoriesView = new ListCollectionView(Categories);
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -124,24 +92,21 @@ namespace AnimeWallpaperRenamer
             if (result == OK && !string.IsNullOrWhiteSpace(_toFolderBrowserDialog.SelectedPath))
             {
                 ToPath = _toFolderBrowserDialog.SelectedPath;
-
-                var regex = new Regex("^(.*) ([0-9]*)$");
-                Categories.Clear();
+                _categories.Clear();
 
                 foreach (var file in Directory.GetFiles(ToPath))
                 {
                     // ReSharper disable once AssignNullToNotNullAttribute
-                    var regexResult = regex.Match(Path.GetFileNameWithoutExtension(file));
+                    var regexResult = Regex.Match(Path.GetFileNameWithoutExtension(file), "^(.*) [0-9]*$");
 
                     if (!regexResult.Success)
                         continue;
 
                     var name = regexResult.Groups[1].Value;
-                    
-                    if (!Categories.Contains(name))
-                        Categories.Add(name);
-                }
 
+                    if (!_categories.Contains(name))
+                        _categories.Add(name);
+                }
             }
         }
 
@@ -177,25 +142,23 @@ namespace AnimeWallpaperRenamer
                 id++;
                 moveToPath = $@"{ToPath}\{category} {id}{Path.GetExtension(ImagePath)}";
             } while (File.Exists(moveToPath));
-
-            var from = ImagePath;
+            
             ImagePath = _imagesToMove != null && _imagesToMove.Count != 0 ? _imagesToMove.Pop() : null;
-            File.Move(from, moveToPath);
+            File.Move(ImagePath, moveToPath);
         }
 
         private void AddButton_OnClick(object sender, RoutedEventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(NewCategory))
+            var text = NewCategoryTextBox.Text;
+            if (string.IsNullOrWhiteSpace(text))
                 return;
 
             foreach (var chr in Path.GetInvalidFileNameChars())
-            {
-                if (NewCategory.Contains(chr))
+                if (text.Contains(chr))
                     return;
-            }
 
-            if (Categories.Contains(NewCategory))
-                Categories.Add(NewCategory);
+            if (!_categories.Contains(text))
+                _categories.Add(text);
         }
 
         private void TextBoxBase_OnTextChanged(object sender, TextChangedEventArgs e)

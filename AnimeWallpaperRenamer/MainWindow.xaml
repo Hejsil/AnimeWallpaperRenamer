@@ -87,7 +87,7 @@
                             <ColumnDefinition Width="20"/>
                         </Grid.ColumnDefinitions>
 
-                        <TextBox Grid.Column="0" Text="{Binding NewCategory}">
+                        <TextBox Grid.Column="0" Name="NewCategoryTextBox">
                             
                         </TextBox>
 
