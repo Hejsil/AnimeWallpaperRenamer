@@ -3,7 +3,6 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:AnimeWallpaperRenamer"
         xmlns:converters="clr-namespace:AnimeWallpaperRenamer.Converters"
         mc:Ignorable="d"
         Title="MainWindow" Width="800" Height="600"
@@ -32,21 +31,7 @@
                 </DrawingGroup>
             </DrawingImage.Drawing>
         </DrawingImage>
-        <DrawingImage x:Key="EditIcon">
-            <DrawingImage.Drawing>
-                <DrawingGroup>
-                    <DrawingGroup.Children>
-                        <GeometryDrawing Brush="#00FFFFFF" Geometry="F1M16,16L0,16 0,0 16,0z" />
-                        <GeometryDrawing Brush="#FFF6F6F6" Geometry="F1M11.4768,-0.000199999999999534L-0.000199999999999534,11.5938 -0.000199999999999534,15.9998 4.3268,15.9998 15.9998,4.2798 15.9998,4.2368 11.7848,-0.000199999999999534z" />
-                        <GeometryDrawing Brush="#FF00539C" Geometry="F1M1,12.0898L1,14.9998 3.91,14.9998z M8.91,3.9998L1.91,10.9998 4.91,13.9998 11.91,6.9998z M14.598,4.2498L12.91,5.9998 9.91,2.9998 11.598,1.2498z" />
-                    </DrawingGroup.Children>
-                </DrawingGroup>
-            </DrawingImage.Drawing>
-        </DrawingImage>
-        <Style x:Key="CategoryItemDoubleClick" TargetType="{x:Type ListViewItem}">
-            <EventSetter Event="MouseDoubleClick" Handler="Category_OnDoubleClick" />
-        </Style>
-        <converters:PathToImageConverter x:Key="test" />
+        <converters:PathToImageConverter x:Key="PathToImageConverter" />
     </Window.Resources>
     
     <Grid>
@@ -72,13 +57,16 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-                    <ListView Name="CategoryListView"
-                              Grid.Row="0" 
-                              ItemsSource="{Binding CategoriesView}" 
-                              ItemContainerStyle="{StaticResource CategoryItemDoubleClick}">
+                    <ListView Grid.Row="0" 
+                              ItemsSource="{Binding CategoriesView}">
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="{x:Type ListViewItem}">
+                                <EventSetter Event="MouseDoubleClick" Handler="Category_OnDoubleClick" />
+                            </Style>
+                        </ListView.ItemContainerStyle>
                     </ListView>
 
-                    <TextBox Grid.Row="2" Name="FilterTextBox" TextChanged="TextBoxBase_OnTextChanged"></TextBox>
+                    <TextBox Grid.Row="2" TextChanged="FilterTextBox_OnTextChanged"/>
 
                     <Grid Grid.Row="4">
                         <Grid.ColumnDefinitions>
@@ -87,9 +75,7 @@
                             <ColumnDefinition Width="20"/>
                         </Grid.ColumnDefinitions>
 
-                        <TextBox Grid.Column="0" Name="NewCategoryTextBox">
-                            
-                        </TextBox>
+                        <TextBox Grid.Column="0" Text="{Binding NewCategoryName}"/>
 
                         <Button Grid.Column="2" Click="AddButton_OnClick">
                             <Image Source="{StaticResource AddIcon}"/>
@@ -99,9 +85,7 @@
             </GroupBox>
 
             <GroupBox Grid.Column="0" Header="Wallpaper">
-                <Image Name="WallpaperImageView" Source="{Binding ImagePath, Converter={StaticResource test}}">
-                    
-                </Image>
+                <Image Name="WallpaperImageView" Source="{Binding ImagePath, Converter={StaticResource PathToImageConverter}}"/>
             </GroupBox>
         </Grid>
 
@@ -119,7 +103,7 @@
                         <ColumnDefinition Width="20"/>
                     </Grid.ColumnDefinitions>
 
-                    <TextBox Grid.Column="0" IsEnabled="False" Text="{Binding FromPath}"></TextBox>
+                    <TextBox Grid.Column="0" IsEnabled="False" Text="{Binding FromPath}"/>
                     <Button Grid.Column="1" Click="OpenFromPath_OnClick">
                         <Image Source="{StaticResource OpenFolderIcon}"></Image>
                     </Button>
@@ -133,7 +117,7 @@
                         <ColumnDefinition Width="20"/>
                     </Grid.ColumnDefinitions>
 
-                    <TextBox Grid.Column="0" IsEnabled="False" Text="{Binding ToPath}"></TextBox>
+                    <TextBox Grid.Column="0" IsEnabled="False" Text="{Binding ToPath}"/>
                     <Button Grid.Column="1" Click="OpenToPath_OnClick">
                         <Image Source="{StaticResource OpenFolderIcon}"/>
                     </Button>
