@@ -20,7 +20,6 @@ namespace AnimeWallpaperRenamer
         private readonly ObservableCollection<string> _categories = new ObservableCollection<string>();
         private readonly WinForms.FolderBrowserDialog _fromFolderBrowserDialog = new WinForms.FolderBrowserDialog();
         private readonly WinForms.FolderBrowserDialog _toFolderBrowserDialog = new WinForms.FolderBrowserDialog();
-        private readonly Random _random = new Random();
         private ICollectionView _categoriesView;
         private Stack<string> _imagesToMove;
         private string _fromPath;
@@ -146,11 +145,15 @@ namespace AnimeWallpaperRenamer
             if (category == null)
                 return;
 
+            // TODO: Figure out a faster way of getting a unique filename, but which still tries two follow the sequence 1, 2, 3...
             string moveToPath;
+            var id = 0;
             do
             {
+                id++;
+
                 // Construct path that the image should be renamed to
-                moveToPath = $@"{ToPath}\{category} {_random.Next()}{Path.GetExtension(ImagePath)}";
+                moveToPath = $@"{ToPath}\{category} {id}{Path.GetExtension(ImagePath)}";
             } while (File.Exists(moveToPath));
 
             File.Move(ImagePath, moveToPath);
