@@ -20,6 +20,7 @@ namespace AnimeWallpaperRenamer
         private readonly ObservableCollection<string> _categories = new ObservableCollection<string>();
         private readonly WinForms.FolderBrowserDialog _fromFolderBrowserDialog = new WinForms.FolderBrowserDialog();
         private readonly WinForms.FolderBrowserDialog _toFolderBrowserDialog = new WinForms.FolderBrowserDialog();
+        private readonly string[] _imageExtensions = { ".png", ".jpg", ".gif" };
         private ICollectionView _categoriesView;
         private Stack<string> _imagesToMove;
         private string _fromPath;
@@ -126,7 +127,10 @@ namespace AnimeWallpaperRenamer
                 return;
 
             FromPath = _fromFolderBrowserDialog.SelectedPath;
-            _imagesToMove = new Stack<string>(Directory.GetFiles(FromPath));
+            _imagesToMove = new Stack<string>(
+                Directory.GetFiles(FromPath)
+                    .Where(file => _imageExtensions.Contains(Path.GetExtension(file)))
+            );
 
             // Get next image only if the stack is not null, and contains items
             ImagePath = _imagesToMove != null && _imagesToMove.Count != 0 ? _imagesToMove.Pop() : null;
