@@ -182,7 +182,7 @@ namespace AnimeWallpaperRenamer
                 CategoriesView.Filter = o =>
                 {
                     var category = o as string;
-                    return category != null && Regex.IsMatch(category, text);
+                    return category != null && Regex.IsMatch(category, text, RegexOptions.IgnoreCase);
                 };
         }
     }
