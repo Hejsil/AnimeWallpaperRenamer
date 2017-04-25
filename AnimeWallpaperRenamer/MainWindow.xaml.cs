@@ -18,8 +18,7 @@ namespace AnimeWallpaperRenamer
     public partial class MainWindow : INotifyPropertyChanged
     {
         private readonly ObservableCollection<string> _categories = new ObservableCollection<string>();
-        private readonly WinForms.FolderBrowserDialog _fromFolderBrowserDialog = new WinForms.FolderBrowserDialog();
-        private readonly WinForms.FolderBrowserDialog _toFolderBrowserDialog = new WinForms.FolderBrowserDialog();
+        private readonly WinForms.FolderBrowserDialog _folderBrowserDialog = new WinForms.FolderBrowserDialog();
         private readonly string[] _imageExtensions = { ".png", ".jpg", ".gif" };
         private ICollectionView _categoriesView;
         private Stack<string> _imagesToMove;
@@ -94,12 +93,12 @@ namespace AnimeWallpaperRenamer
 
         private void OpenToPath_OnClick(object sender, RoutedEventArgs e)
         {
-            var result = _toFolderBrowserDialog.ShowDialog();
+            var result = _folderBrowserDialog.ShowDialog();
             
-            if (result != WinForms.DialogResult.OK || !Directory.Exists(_toFolderBrowserDialog.SelectedPath))
+            if (result != WinForms.DialogResult.OK || !Directory.Exists(_folderBrowserDialog.SelectedPath))
                 return;
 
-            ToPath = _toFolderBrowserDialog.SelectedPath;
+            ToPath = _folderBrowserDialog.SelectedPath;
             _categories.Clear();
 
             // The loop for finding all categories in a wallpaper folder
@@ -121,12 +120,12 @@ namespace AnimeWallpaperRenamer
 
         private void OpenFromPath_OnClick(object sender, RoutedEventArgs e)
         {
-            var result = _fromFolderBrowserDialog.ShowDialog();
+            var result = _folderBrowserDialog.ShowDialog();
 
-            if (result != WinForms.DialogResult.OK || !Directory.Exists(_fromFolderBrowserDialog.SelectedPath))
+            if (result != WinForms.DialogResult.OK || !Directory.Exists(_folderBrowserDialog.SelectedPath))
                 return;
 
-            FromPath = _fromFolderBrowserDialog.SelectedPath;
+            FromPath = _folderBrowserDialog.SelectedPath;
             _imagesToMove = new Stack<string>(
                 Directory.GetFiles(FromPath)
                     .Where(file => _imageExtensions.Contains(Path.GetExtension(file)))
